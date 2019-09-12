@@ -1,0 +1,16 @@
+<div class="flex bg-gray-200">
+  <div class="flex-1 text-center px-4 py-2 m-2">
+    <img class="m-auto" width="200px;" [src]="imageUser" alt="">
+  </div>
+
+</div>
+
+<div class="flex bg-gray-200">
+  <div class="flex-1 text-center px-4 py-2 m-2">
+    <form [formGroup]="formUpload">
+      <input type="file" (change)="fileChangeEvent($event)" placeholder="Upload file..." formControlName="file" />
+      <button type="submit" class="btn btn-primary" [disabled]="formUpload.invalid" (click)="loadingAlert()" [ngClass]="{'cursor-not-allowed': formUpload.invalid}">อัพโหลด</button>
+    </form>
+   
+  </div>
+</div>

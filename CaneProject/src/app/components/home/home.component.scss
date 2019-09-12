@@ -1,0 +1,257 @@
+.MapView {
+  height: 100vh;
+}
+.MapViewSub {
+  height: 100%;
+  border-radius: 25px;
+
+}
+
+.MainMenu {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 60px;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+.MainCenter {
+  height: 100px;
+  left: 50%;
+  margin-top: -50px;
+  margin-left: -50px;
+  position: absolute;
+  top: 50%;
+  width: 100px;
+}
+
+.LabelCenter {
+  left: 50%;
+  margin-top: 63px;
+  margin-left: -50%;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  font-size: 20px;
+}
+
+.LabelShowDistance {
+  left: 50%;
+  margin-left: -200px;
+  position: absolute;
+  top: 20px;
+  width: 400px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  font-size: 30px;
+}
+
+.fix-icon-menu {
+  color: white;
+  font-size: 50px;
+}
+
+.TabMainMenu {
+  height: 70px;
+  left: 50%;
+  margin-left: -120px;
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+  text-align: center;
+  position: absolute;
+  bottom: 30px;
+  width: 240px;
+}
+
+.TabMainMenu2 {
+  height: 70px;
+  left: 50%;
+  margin-left: -120px;
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+  text-align: center;
+  position: absolute;
+  bottom: 110px;
+  width: 240px;
+}
+
+.TabMainMenu3 {
+  position: absolute;
+  right: 10px;
+  bottom: 25px;
+  width: 60px;
+}
+
+.MainMenuNew {
+  height: 70px;
+  width: 70px;
+}
+.MainMenuSubNew {
+  height: 60px;
+  width: 60px;
+  margin: auto;
+}
+
+.FooterMenu {
+  height: 60px;
+  width: 60px;
+  margin: auto;
+}
+
+@media (max-width: 576px) {
+  .MainMenu {
+    right: 3px;
+    width: 40px;
+  }
+
+  .LabelCenter {
+    font-size: 13px;
+    margin-top: 55px;
+  }
+
+  .LabelShowDistance {
+    margin-left: -150px;
+    width: 300px;
+    font-size: 18px;
+  }
+
+  .MainCenter {
+    height: 50px;
+    margin-top: -25px;
+    margin-left: -25px;
+    width: 50px;
+  }
+
+  .LabelCenter {
+    margin-top: 35px;
+  }
+
+.TabMainMenu {
+  margin-left: -90px;
+  width: 180px;
+  bottom: 10px;
+}
+
+.TabMainMenu2{
+  bottom: 78px;
+}
+
+.TabMainMenu3 {
+  width: 30px;
+}
+
+
+
+  .MainMenuNew {
+    height: 55px;
+    width: 55px;
+  }
+  .MainMenuSubNew {
+    height: 45px;
+    width: 45px;
+    margin: auto;
+  }
+
+
+  .FooterMenu{
+    height: 30px;
+    width: 30px;
+  }
+  
+}
+
+
+.listMenu {
+  cursor: pointer;
+}
+
+.listMenu:hover {
+  opacity: 0.8;
+}
+
+.btn-circle {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 15px;
+}
+.btn-circle.btn-lg {
+  width: 50px;
+  height: 50px;
+  padding: 10px 16px;
+  font-size: 18px;
+  line-height: 1.33;
+  border-radius: 25px;
+}
+.btn-circle.btn-xl {
+  width: 70px;
+  height: 70px;
+  padding: 10px 16px;
+  font-size: 24px;
+  line-height: 1.33;
+  border-radius: 35px;
+}
+
+.input-group-text {
+  background-color: #c6f6d5;
+}
+
+.form-control:disabled {
+  background-color: #c6f6d5;
+}
+
+input.ng-invalid {
+  border: solid 0.5px red;
+}
+
+table.absorbing-column {
+  width: 100%;
+}
+
+select {
+  text-align: center;
+  text-align-last: center;
+  /* webkit*/
+}
+option {
+  text-align: center;
+  /* reset to left*/
+}
+
+.ChangeImage {
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+  padding: 5px;
+  cursor: pointer;
+}
+.HeadArea {
+  //background-color: rgba(0, 0, 0, .8);
+  color: rgba(255, 255, 255, 1.0);
+ width: 95%;
+ margin: auto;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.ChangeImage:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 5px;
+}
+
+.testDrop:hover {
+background-color: black;
+}
+
+.agm-marker {
+  background-color: aquamarine;
+  opacity: 0.2;
+}

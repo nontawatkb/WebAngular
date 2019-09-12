@@ -1,0 +1,1241 @@
+<div class="row-12 h-full">
+
+  <div class="relative col-12 p-0 MapView animated fadeInUp">
+    <!-- (zoomChange)="zoomChange($event)"  -->
+    <!-- <agm-map #AgmMap class="h-100" (mapReady)="onMapReady($event)" mapTypeId="hybrid" [minZoom]=5 [zoom]="zoom" (zoomChange)="zoom = $event.zoom" [latitude]="latitude" [longitude]="longitude" (centerChange)="latitude = $event.latitude;longitude = $event.longitude;" > -->
+    <agm-map #AgmMap class="h-100" (mapReady)="onMapReady($event)" [clickableIcons]="false" [zoomControl]="false"
+      [streetViewControl]="false" (mapClick)="mapClicked($event)" [fullscreenControl]="false"
+      (centerChange)="centerChange($event)" [mapTypeId]="MapTypeCurrent" [minZoom]=1 [zoom]="zoom" [latitude]="latitude"
+      [longitude]="longitude">
+
+      <agm-marker [zIndex]=1  [latitude]="latitudeUser" [longitude]="longitudeUser" [iconUrl]="iconName">
+
+        <agm-info-window [disableAutoPan]="true">
+          <a class="cursor-pointer" (click)="userShow()">
+
+            <img class="m-auto rounded-lg" width="90px;" [src]="userImage" alt="">
+          </a>
+        </agm-info-window>
+
+      </agm-marker>
+
+
+      <agm-polyline [strokeColor]="colorPolyline" [strokeWeight]=2>
+
+
+        <agm-polyline-point *ngFor="let test of pathsPolyline" [latitude]="test.lat" [longitude]="test.lng">
+        </agm-polyline-point>
+
+        <agm-marker *ngFor="let test of pathsPolygon;let i = index;" [latitude]="test.lat" [longitude]="test.lng"
+          [iconUrl]="testImg">
+        </agm-marker>
+
+      </agm-polyline>
+
+      <!-- <agm-polygon [paths]="paths" [fillColor]="colorPolygon" [fillOpacity]="0.7" [strokeColor]="colorPolygon" [strokeWeight]=2>
+
+      </agm-polygon> -->
+
+
+      <!-- <agm-marker class="w-25" [latitude]="latClick" [longitude]="lngClick" [iconUrl]="iconName">
+
+      </agm-marker>
+ -->
+
+      
+
+
+      <!-- List Area  -->
+      <agm-polygon class="animated fadeInDown" *ngFor="let items of area.listAreaUser; let i = index"
+        [fillColor]="colorKey[items.typeArea]" [strokeWeight]="1" [fillOpacity]='.5' strokeColor="#fff"
+        [paths]="items.mapArray" (polyClick)="showPolyArea(items); typeSelectAreaPoly = 0">
+        <!-- <agm-marker class="w-25" [latitude]="items.centerMarker[0].lat" [longitude]="items.centerMarker[0].lng"
+          (markerClick)="focusMarkerArea($event)" [iconUrl]="PinKey[items.typeArea]">
+          
+        </agm-marker> -->
+      </agm-polygon>
+
+
+
+
+    </agm-map>
+
+    <div *ngIf="addAreaStatus === true" class="LabelShowDistance animated fadeIn ">
+      <label class="p-1 px-2 rounded text-white" style="background-color: rgb(0, 0, 0, 0.8)"
+        for="">{{AreaSet.acre | number:'1.0-0'}} ไร่ {{AreaSet.job | number:'1.0-0'}} งาน
+        {{AreaSet.wa | number:'1.0-0'}} ตร.ว</label>
+    </div>
+    <div *ngIf="addAreaStatus === true" class="MainCenter animated fadeIn ">
+      <img class="w-full" src="../../../assets//icon//target2.png" alt="">
+    </div>
+    <div *ngIf="addAreaStatus === true" class="LabelCenter animated fadeIn ">
+      <!-- <label class="p-1 px-2 rounded text-white" style="background-color: rgb(0, 0, 0, 0.8)"
+        for="">พิกัด X : {{betweenLat | number:'0.1-5'}} , Y : {{betweenLng | number:'0.1-5'}}</label> -->
+      <label class="p-1 px-2 rounded text-white" style="background-color: rgb(0, 0, 0, 0.8)"
+        for="">{{distanceBetween | number:'0.1-2'}} ม.</label>
+    </div>
+
+
+    <!-- <div class="MainMenuNew rounded-full shadow-md ">
+       <img class="w-full" src="../../../assets//icon/addmap.png"  alt="">
+    </div>  -->
+    <div class="TabMainMenu">
+      <div *ngIf="addAreaStatus === true" (click)="BackDragDraw()"
+        class="MainMenuSubNew cursor-pointer rounded-full shadow-md bg-gray-700 animated fadeIn">
+        <img class="w-full listMenu" src="../../../assets//icon/left-arrow.png" alt="">
+      </div>
+      <div *ngIf="addAreaStatus === false" (click)="OpenDragDraw()"
+        class="MainMenuNew cursor-pointer rounded-full shadow-md bg-orange-500 hover:bg-orange-400  p-3 animated fadeIn">
+        <img class="w-full" src="../../../assets//icon/addmap.png" alt="">
+      </div>
+      <div *ngIf="addAreaStatus === true" (click)="ConfirmDrag()"
+        class="MainMenuNew cursor-pointer rounded-full shadow-md animated fadeIn">
+        <img class="w-full listMenu rounded-full bg-white" src="../../../assets//icon//upload.png" alt="">
+      </div>
+      <div *ngIf="addAreaStatus === true" (click)="ClearDrag();"
+        class="MainMenuSubNew cursor-pointer rounded-full shadow-md bg-gray-700 animated fadeIn">
+        <img class="w-full listMenu " src="../../../assets//icon/error.png" alt="">
+      </div>
+    </div>
+
+    <div class="TabMainMenu2">
+      <div *ngIf="addAreaStatus === true" (click)="addPathDraw()"
+        class="MainMenuSubNew cursor-pointer rounded-full shadow-md bg-green-500 hover:bg-green-400 animated fadeIn">
+        <img class="w-full listMenu" src="../../../assets//icon//plus.png" alt="">
+      </div>
+    </div>
+
+    <div class="TabMainMenu3">
+
+      <div *ngIf="StatusLocationCurrent === false" (click)="ChangeStatusLocation(true)" class="FooterMenu animated ">
+        <img class="w-full listMenu " src="../../../assets//icon//rec1.png" alt="">
+      </div> 
+      <div *ngIf="StatusLocationCurrent === true" (click)="ChangeStatusLocation(false)" class="FooterMenu animated flash infinite slower">
+        <img class="w-full listMenu " src="../../../assets//icon//rec.png" alt="">
+      </div> 
+    </div>
+
+    <div class="MainMenu py-1 px-1 animated rounded shadow"
+      [ngClass]="{'fadeInDown fast': menuShow === true, 'fadeInUp fast': menuShow === false }">
+
+      <div class="animated pulse infinite py-1" *ngIf="menuShow === false" (click)="menuShow = true; ClearDrag();">
+        <img class="w-full listMenu " src="../../../assets//icon//tools.png" alt="">
+      </div>
+
+      <div class="animated py-1" *ngIf="menuShow === true" (click)="menuShow = false;"
+        [ngClass]="{'fadeInDown faster': menuShow === false, 'fadeInUp faster': menuShow === true }">
+        <img class="w-full listMenu " src="../../../assets//icon//error.png" alt="">
+      </div>
+      <!-- <div class="animated fadeInDown faster py-1" *ngIf="menuShow === true" (click)="ClearDrag()">
+        <img class="listMenu" src="../../../assets//icon//error.png" width="50px;" alt="">
+      </div>
+      <div class="animated fadeInDown faster py-1" *ngIf="menuShow === true" (click)="BackDrag()">
+        <img class="listMenu" src="../../../assets//icon//left-arrow.png" width="50px;" alt="">
+      </div>
+      <div class="animated fadeInDown faster py-1" *ngIf="menuShow === true" (click)="ConfirmDrag()">
+        <img class="listMenu" src="../../../assets//icon//success.png" width="50px;" alt="">
+      </div> -->
+
+      <div class="my-3 bg-red-600 animated" *ngIf="menuShow === true"
+        [ngClass]="{'fadeInDown faster': menuShow === true, 'fadeInUp faster': menuShow === false }"
+        style="width: 100%; height: 3px;">
+      </div>
+
+      <div class="animated py-1" *ngIf="menuShow === true"
+        [ngClass]="{'fadeInDown faster': menuShow === true, 'fadeInUp faster': menuShow === false }"
+        (click)="showSearchArea()">
+        <img class="w-full listMenu" src="../../../assets//icon//search.png" width="50px;" alt="">
+
+      </div>
+
+      <div class="animated py-1" *ngIf="menuShow === true"
+        [ngClass]="{'fadeInDown faster': menuShow === true, 'fadeInUp faster': menuShow === false }"
+        (click)="showListArea()">
+        <img class="w-full listMenu" src="../../../assets//icon//map.png" width="50px;" alt="">
+      </div>
+
+      <div class="animated py-1" *ngIf="menuShow === true"
+        [ngClass]="{'fadeInDown faster': menuShow === true, 'fadeInUp faster': menuShow === false }"
+        (click)="showInfomationArea()">
+        <img class="w-full listMenu" src="../../../assets//icon//stadistics.png" width="50px;" alt="">
+      </div>
+
+      <div class="animated py-1" *ngIf="menuShow === true"
+        [ngClass]="{'fadeInDown faster': menuShow === true, 'fadeInUp faster': menuShow === false }"
+        (click)="showChoosetypeMap()">
+        <img class="w-full listMenu" src="../../../assets//icon//mapTypeSelect.png" width="50px;" alt="">
+      </div>
+      <!-- <div class="animated py-1" *ngIf="menuShow === true"
+        [ngClass]="{'fadeInDown faster': menuShow === true, 'fadeInUp faster': menuShow === false }"
+        (click)="userShow()">
+        <img class="w-full listMenu" src="../../../assets//icon//calendar.png" width="50px;" alt="">
+      </div> -->
+
+      <div class="animated py-1" *ngIf="menuShow === true"
+        [ngClass]="{'fadeInDown faster': menuShow === true, 'fadeInUp faster': menuShow === false }"
+        (click)="setCurrentLocation()">
+        <img class="w-full listMenu" src="../../../assets//icon//navigation.png" width="50px;" alt="">
+      </div>
+
+      <div class="animated py-1" *ngIf="menuShow === true"
+        [ngClass]="{'fadeInDown faster': menuShow === true, 'fadeInUp faster': menuShow === false }"
+        (click)="userShow()">
+        <img class="w-full listMenu" src="../../../assets//icon//boy.png" width="50px;" alt="">
+      </div>
+
+      <!-- <div class="animated py-2" *ngIf="menuShow === true"
+        [ngClass]="{'fadeInDown faster': menuShow === true, 'fadeInUp faster': menuShow === false }"
+        (click)="infoShow()">
+        <img class="w-full listMenu" src="../../../assets//icon//info.png" width="50px;" alt="">
+      </div> -->
+
+
+    </div>
+
+
+  </div>
+
+
+</div>
+
+
+<swal #SwalFormAddArea [showCancelButton]="false" [showCloseButton]="true" (close)="cancelAddArea()"
+  [showConfirmButton]="false" [allowOutsideClick]="false" [customClass]="{
+  popup: 'animated fadeIn'
+}">
+
+  <ng-container *swalPartial="swalTargets.content">
+    <div class="text-center text-2xl sm:text-3xl">
+      <p>เพิ่มแปลงพื้นที่</p>
+    </div>
+
+    <div class="w-full py-3">
+
+      <form [formGroup]="formAddArea">
+
+        <div class="inline-block w-11/12 my-2 text-left text-sm sm:text-base">
+          <h1>หมายเลขแปลง <span style="color: red;">*</span></h1>
+        </div>
+        <div class="inline-block w-11/12 text-sm sm:text-base">
+          <input class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" type="number"
+            formControlName="idArea" placeholder="ป้อนตัวเลข 0-9 เท่านั้น">
+          <label for=""> </label>
+        </div>
+        <div class="inline-block w-11/12 text-left text-sm sm:text-base">
+          <h1>ชื่อแปลง<span style="color: red;">*</span></h1>
+        </div>
+        <div class="inline-block w-11/12 text-sm sm:text-base">
+          <input class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" type="text"
+            formControlName="nameArea">
+        </div>
+        <div class="inline-block w-11/12  text-left text-sm sm:text-base">
+          <h1>ชื่อ - นามสกุล <span style="color: red;">*</span></h1>
+        </div>
+        <div class="inline-block w-11/12 text-sm sm:text-base">
+          <input class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" type="text"
+            [value]="auth.dataUserProfile.name" formControlName="nameCustomer">
+        </div>
+
+        <div class="inline-block w-5/12 mt-3 text-left text-sm sm:text-base">
+          <h1>พื้นที่</h1>
+        </div>
+        <div class="inline-block w-1/12 mt-3">
+        </div>
+        <div class="inline-block w-5/12 mt-3 text-left text-sm sm:text-base">
+          <h1>ชนิดพืช <span style="color: red;">*</span></h1>
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <div class="input-group">
+            <input type="text" disabled class="form-control py-1 sm:py-2 text-center bg-yellow-200 text-center"
+              [value]="(distanceArea/1600) | number:'1.1-1'" formControlName="areaDistance">
+            <div class="input-group-append">
+              <span class="input-group-text">ไร่</span>
+            </div>
+          </div>
+        </div>
+        <div class="inline-block w-1/12 mt-3">
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <select class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" formControlName="typePlants">
+            <option [selected]="true" value="อ้อย">อ้อย</option>
+          </select>
+        </div>
+
+        <div class="inline-block w-5/12 mt-3 text-left text-sm sm:text-base">
+          <h1>ชื่อพันธุ์</h1>
+        </div>
+        <div class="inline-block w-1/12 mt-3">
+        </div>
+        <div class="inline-block w-5/12 mt-3 text-left text-sm sm:text-base">
+          <h1>ปีการผลิต <span style="color: red;">*</span></h1>
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <input class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" type="text"
+            formControlName="namePlantsCode">
+        </div>
+        <div class="inline-block w-1/12">
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <select class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" formControlName="yearProduct">
+            <option value="2559">2559</option>
+            <option value="2560">2560</option>
+            <option value="2561">2561</option>
+            <option [selected]="true" value="2562">2562</option>
+            <option value="2563">2563</option>
+            <option value="2564">2564</option>
+            <option value="2565">2565</option>
+            <option value="2566">2566</option>
+          </select>
+        </div>
+
+        <div class="inline-block w-5/12 mt-3 text-left text-sm sm:text-base">
+          <h1>โครงการอ้อย <span style="color: red;">*</span></h1>
+        </div>
+        <div class="inline-block w-1/12 mt-3">
+        </div>
+        <div class="inline-block w-5/12 mt-3 text-left text-sm sm:text-base">
+          <h1>ประเภทอ้อย <span style="color: red;">*</span></h1>
+        </div>
+
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <select class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" formControlName="nameProject">
+            <option [selected]="true" value="อ้อยยอด">อ้อยยอด</option>
+            <option value="อ้อยตอ">อ้อยตอ</option>
+          </select>
+        </div>
+        <div class="inline-block w-1/12 mt-3">
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <select class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" formControlName="typeArea">
+            <option [selected]="true" value="0">อ้อยตอ 1</option>
+            <option value="1">อ้อยตอ 2</option>
+            <option value="2">อ้อยตอ 3</option>
+          </select>
+        </div>
+
+        <div class="inline-block w-full mt-5 text-sm sm:text-base">
+          <div class="inline-block w-full sm:w-5/12">
+            <button
+              class="w-full bg-green-500 text-white rounded-full py-2 px-4 mb-2 shadow-md hover:bg-green-400 text-center"
+              type="button" (click)="confirmAddArea()">
+              บักทึกข้อมูล
+            </button>
+          </div>
+          <div class="inline-block w-1/12"></div>
+          <div class="inline-block w-full sm:w-5/12">
+            <button
+              class="w-full bg-red-500 text-white rounded-full py-2 px-4 mb-4 shadow-md hover:bg-red-400 text-center"
+              type="button" (click)="cancelAddArea()">
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="formAddArea.invalid === true" class="mb-6">
+          <label class="block text-gray-700 text-md font-regular mb-2 text-red-500">
+            *โปรดกรอกข้อมูลให้ถูกต้องตามเงื่อนไข
+          </label>
+        </div>
+
+      </form>
+    </div>
+  </ng-container>
+</swal>
+
+
+
+
+
+<swal #SwalShowAddArea [showCloseButton]="true" [showCancelButton]="false" [showConfirmButton]="false"
+  [allowOutsideClick]="true" [animation]="false" (close)="closeShowArea()" [customClass]="{
+    popup: 'animated fadeIn'
+  }">
+
+  <ng-container *swalPartial="swalTargets.content">
+
+    <div class="text-center text-2xl sm:text-3xl">
+      <p>ข้อมูลพื้นที่</p>
+    </div>
+    <div class="w-full py-2">
+
+      <form [formGroup]="formEditArea">
+
+        <div class="inline-block w-11/12 text-left text-sm sm:text-base">
+          <h1>หมายเลขแปลง </h1>
+        </div>
+        <div class="inline-block w-11/12 text-sm sm:text-base">
+          <input *ngIf="editStatus === true" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200"
+            type="number" formControlName="idArea" placeholder="ป้อนตัวเลข 0-9 เท่านั้น">
+          <label *ngIf="editStatus === false" class="w-full py-1 bg-green-200 rounded"
+            for="">{{ formEditArea.value.idArea }}</label>
+        </div>
+        <div class="inline-block w-11/12 text-left text-sm sm:text-base">
+          <h1>ชื่อแปลง </h1>
+        </div>
+        <div class="inline-block w-11/12 text-sm sm:text-base">
+          <input *ngIf="editStatus === true" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200"
+            type="text" formControlName="nameArea">
+          <label *ngIf="editStatus === false" class="w-full py-1 bg-green-200 rounded"
+            for="">{{ formEditArea.value.nameArea }}</label>
+        </div>
+        <div class="inline-block w-11/12 text-left text-sm sm:text-base">
+          <h1>ชื่อ - นามสกุล </h1>
+        </div>
+        <div class="inline-block w-11/12 text-sm sm:text-base">
+          <input *ngIf="editStatus === true" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200"
+            type="text" [value]="formEditArea.value.nameCustomer" formControlName="nameCustomer">
+          <label *ngIf="editStatus === false" class="w-full py-1 bg-green-200 rounded"
+            for="">{{ formEditArea.value.nameCustomer }}</label>
+        </div>
+
+        <div class="inline-block w-5/12  text-left text-sm sm:text-base">
+          <h1>พื้นที่</h1>
+        </div>
+        <div class="inline-block w-1/12">
+        </div>
+        <div class="inline-block w-5/12 text-left text-sm sm:text-base">
+          <h1>ชนิดพืช </h1>
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+
+          <label class="w-full py-1 bg-green-200 rounded" for="">{{ dataShowArea.distancArea/1600 | number:'1.1-1'}}
+            ไร่</label>
+        </div>
+        <div class="inline-block w-1/12">
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <select *ngIf="editStatus === true" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200"
+            formControlName="typePlants">
+            <option class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" [selected]="true" value="อ้อย">
+              อ้อย
+            </option>
+          </select>
+
+          <label *ngIf="editStatus === false" class="w-full py-1 bg-green-200 rounded"
+            for="">{{ formEditArea.value.typePlants }}</label>
+        </div>
+
+        <div class="inline-block w-5/12 text-left text-sm sm:text-base">
+          <h1>ชื่อพันธุ์</h1>
+        </div>
+        <div class="inline-block w-1/12">
+        </div>
+        <div class="inline-block w-5/12 text-left text-sm sm:text-base">
+          <h1>ปีการผลิต </h1>
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <input *ngIf="editStatus === true" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200"
+            type="text" formControlName="namePlantsCode">
+          <label *ngIf="editStatus === false" class="w-full py-1 bg-green-200 rounded"
+            for="">{{ formEditArea.value.namePlantsCode || 'Null' }}</label>
+        </div>
+        <div class="inline-block w-1/12">
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <select *ngIf="editStatus === true" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200"
+            formControlName="yearProduct">
+            <option value="2559">2559</option>
+            <option value="2560">2560</option>
+            <option value="2561">2561</option>
+            <option [selected]="true" value="2562">2562</option>
+            <option value="2563">2563</option>
+            <option value="2564">2564</option>
+            <option value="2565">2565</option>
+            <option value="2566">2566</option>
+          </select>
+
+          <label *ngIf="editStatus === false" class="w-full py-1 bg-green-200 rounded"
+            for="">{{ formEditArea.value.yearProduct }}</label>
+        </div>
+
+        <div class="inline-block w-5/12 text-left text-sm sm:text-base">
+          <h1>โครงการอ้อย </h1>
+        </div>
+        <div class="inline-block w-1/12">
+        </div>
+        <div class="inline-block w-5/12 text-left text-sm sm:text-base">
+          <h1>ประเภทอ้อย </h1>
+        </div>
+
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <select *ngIf="editStatus === true" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200"
+            formControlName="nameProject">
+            <option [selected]="true" value="อ้อยยอด">อ้อยยอด</option>
+            <option value="อ้อยตอ">อ้อยตอ</option>
+          </select>
+
+          <label *ngIf="editStatus === false" class="w-full py-1 bg-green-200 rounded"
+            for="">{{ formEditArea.value.nameProject }}</label>
+        </div>
+        <div class="inline-block w-1/12">
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <select *ngIf="editStatus === true" value="0"
+            class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" formControlName="typeArea">
+            <option value="0">อ้อยตอ 1</option>
+            <option value="1">อ้อยตอ 2</option>
+            <option value="2">อ้อยตอ 3</option>
+          </select>
+
+          <label *ngIf="editStatus === false" class="w-full py-1 bg-green-200 rounded"
+            for="">{{ statusArea[formEditArea.value.typeArea] }}</label>
+        </div>
+
+
+        <div class="inline-block w-5/12 text-left text-sm sm:text-base">
+          <h1>ปริมาณผลผลิต </h1>
+        </div>
+        <div class="inline-block w-1/12">
+        </div>
+        <div class="inline-block w-5/12 text-left text-sm sm:text-base">
+          <h1>สถานะการตัด</h1>
+        </div>
+
+
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <div class="input-group text-center">
+            <input *ngIf="editStatus === true" type="number" class="form-control text-center bg-yellow-200 rounded"
+              formControlName="productofAcre">
+
+            <div *ngIf="editStatus === true" class="input-group-append ">
+              <span class="input-group-text">ตัน/ไร่</span>
+            </div>
+
+          </div>
+          <label *ngIf="editStatus === false" class="w-full py-1 bg-green-200 rounded"
+            for="">{{ formEditArea.value.productofAcre }} ตัน/ไร่
+          </label>
+
+        </div>
+        <div class="inline-block w-1/12">
+        </div>
+        <div class="inline-block w-5/12 text-sm sm:text-base">
+          <select *ngIf="editStatus === true" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200"
+            formControlName="statusCut">
+            <option value="ยังไม่ตัด">ยังไม่ตัด</option>
+            <option value="ตัดแล้ว">ตัดแล้ว</option>
+          </select>
+
+          <label *ngIf="editStatus === false" class="w-full py-1 rounded"
+            [ngClass]="{'bg-red-200': formEditArea.value.statusCut === 'ตัดแล้ว','bg-yellow-200': formEditArea.value.statusCut === 'ยังไม่ตัด'}"
+            for="">{{ formEditArea.value.statusCut }}</label>
+        </div>
+
+
+        <div class="inline-block w-3/12 mt-3 text-center">
+          <button (click)="showTaskArea()"><img class="w-12 sm:w-20" src="../../../assets/icon/list.png"
+              alt=""></button>
+        </div>
+        <div class="inline-block w-3/12 mt-3 text-center">
+          <button (click)="searchChange(dataShowArea)"><img class="w-12 sm:w-20"
+              src="../../../assets/icon/searchArea.png" alt=""></button>
+        </div>
+
+
+        <div class="inline-block w-full mt-3 text-sm sm:text-base">
+          <div class="inline-block w-5/12">
+            <button *ngIf="editStatus === false"
+              class="w-full bg-blue-500 text-white rounded-full py-2 px-4 mb-2 shadow-md hover:bg-blue-400 text-center"
+              type="button" (click)="editStatus = true">
+              แก้ไขข้อมูล
+            </button>
+            <button *ngIf="editStatus === true"
+              class="w-full bg-green-500 text-white rounded-full py-2 px-4 mb-2 shadow-md hover:bg-green-400 text-center"
+              type="button" (click)="confirmEditArea()">
+              ยืนยันข้อมูล
+            </button>
+          </div>
+          <div class="inline-block w-1/12"></div>
+          <div class="inline-block w-5/12">
+            <button *ngIf="editStatus === false"
+              class="w-full bg-red-500 text-white rounded-full py-2 px-4 mb-4 shadow-md hover:bg-red-400 text-center"
+              type="button" (click)="confirmDeleteArea()">
+              ลบแปลงนี้
+            </button>
+            <button *ngIf="editStatus === true"
+              class="w-full bg-red-500 text-white rounded-full py-2 px-4 mb-4 shadow-md hover:bg-red-400 text-center"
+              type="button" (click)="cancelEditArea()">
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="formEditArea.invalid === true" class="mb-6">
+          <label class="block text-gray-700 text-md font-regular mb-2 text-red-500">
+            *โปรดกรอกข้อมูลให้ถูกต้องตามเงื่อนไข
+          </label>
+        </div>
+
+      </form>
+    </div>
+  </ng-container>
+</swal>
+
+
+
+<swal #SwalShowUser [width]=500 [showCancelButton]="false" [showConfirmButton]="false" [showCloseButton]="true"
+  [animation]="false" [allowOutsideClick]="true" [customClass]="{
+  popup: 'animated fadeIn'
+}">
+
+  <ng-container *swalPartial="swalTargets.content">
+    <div class="text-center text-2xl sm:text-3xl">
+      <p>ข้อมูลผู้ใช้งาน</p>
+    </div>
+    <div class="w-full mt-3 text-center">
+      <div class="relative m-auto w-32 sm:w-40">
+        <div (click)="showImageFull()" style="cursor: zoom-in;">
+          <img class="m-auto rounded-lg w-full" [src]="userImage" alt="">
+        </div>
+
+        <div class="absolute rounded-lg bottom-0 left-0 right-0 ChangeImage text-xs sm:text-base"
+          (click)="UploadPicStatus = !UploadPicStatus;">
+          <p *ngIf="UploadPicStatus === false">
+            เปลี่ยนรูปภาพ
+          </p>
+          <p *ngIf="UploadPicStatus === true">
+            ยกเลิก
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="UploadPicStatus === true" class="w-full mt-2 text-center">
+        <form [formGroup]="formUpload">
+          <input class="text-xs sm:text-base" type="file" (change)="fileChangeEvent($event)"
+            placeholder="Upload file..." formControlName="file" />
+          <button class="btn btn-primary text-xs sm:text-base" type="submit" [disabled]="formUpload.invalid"
+            (click)="loadingAlert();UploadPicStatus = false;"
+            [ngClass]="{'cursor-not-allowed': formUpload.invalid}">อัพโหลด</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="w-10/12 mt-2 justify-center text-center">
+
+      <div class="inline-block w-2/12 mt-2 text-sm sm:text-lg">
+        <h1>ชื่อ</h1>
+      </div>
+      <div class="inline-block w-1/12 mt-2 bg-red-400">
+      </div>
+      <div class="inline-block w-8/12 mt-2 text-sm sm:text-lg">
+        <h1>{{auth.dataUserProfile.name}}</h1>
+      </div>
+
+      <div class="inline-block w-2/12 mt-2 text-sm sm:text-lg">
+        <h1>อีเมล์</h1>
+      </div>
+      <div class="inline-block w-1/12 mt-2">
+      </div>
+      <div class="inline-block w-8/12 mt-2 text-sm sm:text-lg">
+        <h1>{{auth.dataUserProfile.email}}</h1>
+      </div>
+
+      <div class="inline-block w-2/12 mt-2 text-sm sm:text-lg">
+        <h1>เบอร์</h1>
+      </div>
+      <div class="inline-block w-1/12 mt-2">
+      </div>
+      <div class="inline-block w-8/12 mt-2 text-sm sm:text-lg">
+        <h1>{{auth.dataUserProfile.tel}}</h1>
+      </div>
+
+    </div>
+
+    <div class="text-center mt-5 text-sm sm:text-base">
+      <button (click)="doLogout()"
+        class="w-xs md:w-xl bg-red-500 text-white py-1 px-4 rounded-full shadow-md text-center hover:bg-red-400"
+        type="button">
+        ออกจากระบบ
+      </button>
+    </div>
+
+
+  </ng-container>
+</swal>
+
+<swal #SwalTaskArea [width]=1200 [showCancelButton]="false" [showConfirmButton]="false" [showCloseButton]="true"
+  [animation]="false" [allowOutsideClick]="true" (close)="CloseTaskArea()" [customClass]="{
+    popup: 'animated fadeIn'
+  }">
+
+  <ng-container *swalPartial="swalTargets.content">
+
+    <div class="text-center text-2xl sm:text-3xl">
+      <p *ngIf="tasks.listTasksArea.length != 0">งานที่ทำ</p>
+      <p *ngIf="tasks.listTasksArea.length === 0">ยังไม่มีงาน</p>
+    </div>
+
+    <div class="w-full text-center">
+      <table *ngIf="tasks.listTasksArea.length != 0" class="table text-xs md:text-xl ">
+        <thead>
+          <tr>
+            <th style="max-width:100%;white-space:nowrap;">วันที่</th>
+            <th>ชื่องาน</th>
+            <th class="absorbing-column" style="max-width:100%;white-space:nowrap;">สถานะ</th>
+            <th style="max-width:100%;white-space:nowrap;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of tasks.listTasksArea;let i = index"
+            [ngClass]="{'bg-green-100': item.status === 'close'}">
+            <td style="max-width:100%;white-space:nowrap;">{{item.doDate | date: 'dd/MM/yy' }}</td>
+            <td class="w-50" style="word-wrap: break-word;">{{item.title}}</td>
+            <td *ngIf="item.status === 'wait'" style="max-width:100%;white-space:nowrap;">
+              <button
+                class="w-xs md:w-xl bg-red-500 text-white rounded py-1 px-2 shadow-md  text-center text-xs md:text-xl "
+                type="button">
+                ยังไม่ทำ
+              </button>
+            </td>
+            <td *ngIf="item.status === 'active'" style="max-width:100%;white-space:nowrap;">
+              <button
+                class="w-xs md:w-xl bg-yellow-400 text-dark rounded py-1 px-2 shadow-md text-center text-xs md:text-xl "
+                type="button">
+                กำลังทำ..
+              </button>
+            </td>
+            <td *ngIf="item.status === 'close'" style="max-width:100%;white-space:nowrap;">
+              <button
+                class="w-xs md:w-xl bg-green-500 text-white rounded py-1 px-2 shadow-md  text-center text-xs md:text-xl "
+                type="button">
+                เสร็จแล้ว
+              </button>
+            </td>
+            <td style="max-width:100%;white-space:nowrap;">
+              <a class="cursor-pointer" (click)="showDetailTask(i)">
+                <i class="material-icons">more_horiz</i>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="text-center mt-3 text-sm sm:text-base">
+        <button (click)="addTaskStatus = true; showAddTask()"
+          class="w-xs md:w-xl bg-blue-500 text-white py-1 px-4 rounded-full shadow-md text-center" type="button">
+          เพิ่มงาน
+        </button>
+      </div>
+
+    </div>
+  </ng-container>
+</swal>
+
+<swal #SwalDetailTask [width]=500 [showCancelButton]="false" [showCloseButton]="true" [showConfirmButton]="false"
+  [allowOutsideClick]="true" [animation]="false" (close)="DetailTaskClose()" [customClass]="{
+    popup: 'animated fadeIn'
+  }">
+
+  <ng-container *swalPartial="swalTargets.content">
+    <div class="text-center text-2xl sm:text-3xl">
+      <p>ข้อมูลงาน</p>
+
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+
+        <form [formGroup]="formEditTask">
+          <div class="inline-block w-11/12 my-2 text-left text-sm sm:text-base">
+            <h1>ชื่องาน<span style="color: red;">*</span></h1>
+          </div>
+          <div class="inline-block w-11/12 text-sm sm:text-base">
+
+            <input *ngIf="editTaskStatus === true" placeholder="เลือกวันที่" type="text"
+              class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" formControlName="title">
+
+            <label *ngIf="editTaskStatus === false" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-green-200"
+              for="">{{ formEditTask.value.title}}
+            </label>
+          </div>
+
+          <div class="inline-block w-11/12 my-2 text-left text-sm sm:text-base">
+            <h1>งานที่ทำ<span style="color: red;">*</span></h1>
+          </div>
+          <div class="inline-block w-11/12 text-sm sm:text-base">
+
+            <textarea *ngIf="editTaskStatus === true" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200"
+              rows="5" formControlName="detail" id="comment"></textarea>
+            <textarea *ngIf="editTaskStatus === false" disabled=true
+              class="w-full rounded px-3 py-1 sm:py-2 text-center bg-green-200"
+              rows="5">{{ formEditTask.value.detail}}</textarea>
+
+          </div>
+
+          <div class="inline-block w-11/12 my-2 text-left text-sm sm:text-base">
+            <h1>วันที่<span style="color: red;">*</span></h1>
+          </div>
+          <div class="inline-block w-11/12 text-sm sm:text-base">
+
+            <input *ngIf="editTaskStatus === true" placeholder="เลือกวันที่" type="text"
+              class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" bsDatepicker #dp="bsDatepicker"
+              formControlName="doDate">
+
+            <label *ngIf="editTaskStatus === false" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-green-200"
+              for="">{{ formEditTask.value.doDate | date: 'dd/MM/yy' }}
+            </label>
+          </div>
+
+          <div class="inline-block w-11/12 my-2 text-left text-sm sm:text-base">
+            <h1>สถานะงาน<span style="color: red;">*</span></h1>
+          </div>
+          <div class="inline-block w-11/12 text-sm sm:text-base">
+
+            <select *ngIf="editTaskStatus === true" class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200"
+              formControlName="status">
+              <option value="wait">ยังไม่ทำ</option>
+              <option value="active">กำลังทำ</option>
+              <option value="close">เสร็จแล้ว</option>
+            </select>
+
+            <label *ngIf="editTaskStatus === false && formEditTask.value.status === 'wait'"
+              class="w-full py-1 bg-red-200 rounded" for="">ยังไม่ทำ
+            </label>
+            <label *ngIf="editTaskStatus === false && formEditTask.value.status === 'active'"
+              class="w-full py-1 bg-yellow-200 rounded" for="">กำลังทำ
+            </label>
+            <label *ngIf="editTaskStatus === false && formEditTask.value.status === 'close'"
+              class="w-full py-1 bg-green-200 rounded" for="">เสร็จแล้ว
+            </label>
+
+          </div>
+
+
+
+          <div class="inline-block w-full mt-3 text-sm sm:text-base">
+            <div class="inline-block w-5/12">
+              <button *ngIf="editTaskStatus === false"
+                class="w-full bg-blue-500 text-white rounded-full py-2 px-4 mb-2 shadow-md hover:bg-blue-400"
+                type="button" (click)="editTaskStatus = true">
+                แก้ไขข้อมูล
+              </button>
+              <button *ngIf="editTaskStatus === true"
+                class="w-full bg-green-500 text-white rounded-full py-2 px-4 mb-2 shadow-md hover:bg-green-400"
+                type="button" (click)="confirmEditTask()">
+                ยืนยันข้อมูล
+              </button>
+            </div>
+            <div class="inline-block w-1/12"></div>
+            <div class="inline-block w-5/12">
+              <button *ngIf="editTaskStatus === false"
+                class="w-full bg-red-500 text-white rounded-full py-2 px-4 mb-4 shadow-md hover:bg-red-400"
+                type="button" (click)="confirmDeleteTask()">
+                ลบงานนี้
+              </button>
+              <button *ngIf="editTaskStatus === true"
+                class="w-full bg-red-500 text-white rounded-full py-2 px-4 mb-4 shadow-md hover:bg-red-400"
+                type="button" (click)="cancelEditTask()">
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+
+
+
+          <div *ngIf="formEditTask.invalid === true" class="mb-6">
+            <label class="block text-gray-700 text-sm sm:text-base font-regular mb-2 text-red-500">
+              *โปรดกรอกข้อมูลให้ถูกต้องตามเงื่อนไข
+            </label>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </ng-container>
+</swal>
+
+
+<swal #SwalAddTask title="เพิ่มงาน" [width]=500 [showCancelButton]="false" [animation]="false"
+  [showConfirmButton]="false" [showCloseButton]="true" [allowOutsideClick]="false" (close)="AddTaskClose()"
+  [customClass]="{
+    popup: 'animated fadeIn'
+  }">
+
+  <ng-container *swalPartial="swalTargets.content">
+    <div class="row">
+      <div class="col-12">
+        <form [formGroup]="formAddTask">
+
+          <div class="inline-block w-11/12 my-2 text-left text-sm sm:text-base">
+            <h1>ชื่องาน<span style="color: red;">*</span></h1>
+          </div>
+          <div class="inline-block w-11/12 text-sm sm:text-base">
+            <input placeholder="ใส่ชื่องาน" type="text"
+              class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" formControlName="title">
+          </div>
+
+          <div class="inline-block w-11/12 my-2 text-left text-sm sm:text-base">
+            <h1>งานที่ทำ<span style="color: red;">*</span></h1>
+          </div>
+          <div class="inline-block w-11/12 text-sm sm:text-base">
+
+            <textarea class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" rows="5"
+              formControlName="detail" id="comment"></textarea>
+          </div>
+
+          <div class="inline-block w-11/12 my-2 text-left text-sm sm:text-base">
+            <h1>วันที่<span style="color: red;">*</span></h1>
+          </div>
+          <div class="inline-block w-11/12 text-sm sm:text-base">
+            <input placeholder="เลือกวันที่" type="text"
+              class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" bsDatepicker #dp="bsDatepicker"
+              formControlName="doDate">
+          </div>
+
+          <div class="inline-block w-11/12 my-2 text-left text-sm sm:text-base">
+            <h1>สถานะงาน<span style="color: red;">*</span></h1>
+          </div>
+          <div class="inline-block w-11/12 text-sm sm:text-base">
+
+            <select class="w-full rounded px-3 py-1 sm:py-2 text-center bg-yellow-200" formControlName="status">
+              <option value="wait">ยังไม่ทำ</option>
+              <option value="active">กำลังทำ</option>
+              <option value="close">เสร็จแล้ว</option>
+            </select>
+
+          </div>
+
+          <div class="inline-block w-full mt-3 text-sm sm:text-base">
+            <div class="inline-block 5/12">
+              <button
+                class="w-full bg-green-500 text-white rounded-full py-2 px-4 mb-4 shadow-md hover:bg-green-400 text-center"
+                type="button" (click)="confirmAddTask()">
+                บักทึกข้อมูล
+              </button>
+            </div>
+            <div class="inline-block w-1/12"></div>
+            <div class="inline-block w-5/12">
+              <button
+                class="w-full bg-red-500 text-white rounded-full py-2 px-4 mb-4 shadow-md hover:bg-red-400 text-center"
+                type="button" (click)="cancelAddTask()">
+                ยกเลิก
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="formAddTask.invalid === true" class="mb-6">
+            <label class="block text-gray-700 text-sm sm:text-base font-regular mb-2 text-red-500">
+              *โปรดกรอกข้อมูลให้ถูกต้องตามเงื่อนไข
+            </label>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </ng-container>
+</swal>
+
+
+<swal #SwalShowInfo title="วิธีการใช้งาน" [width]=500 [showCancelButton]="false" [animation]="false"
+  [showConfirmButton]="false" [allowOutsideClick]="true" [customClass]="{
+    popup: 'animated fadeIn'
+  }">
+
+  <ng-container *swalPartial="swalTargets.content">
+    <div class="row">
+      <div class="col-12 bg-red-500">
+
+        ทดสอบ
+      </div>
+    </div>
+  </ng-container>
+</swal>
+
+<swal #SwalSearchArea [width]=500 [showCancelButton]="false" [showConfirmButton]="false" [showCloseButton]="true"
+  [animation]="false" [allowOutsideClick]="true" [customClass]="{
+  popup: 'animated fadeIn'
+}">
+
+  <ng-container *swalPartial="swalTargets.content">
+    <div class="text-center text-2xl sm:text-3xl mb-3">
+      <p>ค้นหาแปลงพื้นที่</p>
+    </div>
+    <div class="row">
+
+      <div class="col-12">
+        <form [formGroup]="formSearch">
+
+          <div class="inline-block w-full">
+
+            <input placeholder="หมายเลขแปลง" type="text"
+              class="border text-center text-sm sm:text-base bg-yellow-100 py-1 rounded-lg" formControlName="idArea">
+          </div>
+
+          <div class="inline-block w-full mt-3 sm:w-5/12">
+            <button
+              class="w-xs bg-green-500 text-white text-sm sm:text-base rounded-full py-2 px-4 mb-2 shadow-md hover:bg-green-400 text-center"
+              type="button" (click)="SubmitSearchArea()">
+              ค้นหาแปลง
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </ng-container>
+</swal>
+
+
+<swal #SwalChooseTypeArea [width]=700 [showCancelButton]="false" [showConfirmButton]="false" [showCloseButton]="true"
+  [animation]="false" [allowOutsideClick]="true" [customClass]="{
+  popup: 'animated fadeIn'
+}">
+
+  <ng-container *swalPartial="swalTargets.content">
+    <div class="text-center text-2xl sm:text-3xl">
+      <p>เลือกประเภทแผนที่</p>
+    </div>
+
+    <div *ngFor="let items of listMapType; let i=index;" (click)="ChangeMapType(i)"
+      class="inline-block mt-2 sm:mt-0 w-1/4 sm:w-1/4 text-center p-2 cursor-pointer"
+      [ngClass]="{'bg-green-200 rounded animated pulse infinite': items.active === true}">
+      <div class="m-0 text-center w-full flex justify-center">
+        <img class="rounded w-32" [src]="items.img" alt="Woman paying for a purchase">
+      </div>
+      <div class="flex justify-center mt-2">
+        <span class="text-xs sm:text-base text-gray-800 font-semibold">{{items.name}}</span>
+      </div>
+    </div>
+
+  </ng-container>
+</swal>
+
+
+<swal #SwalInfomationArea [width]=700 [showCancelButton]="false" [showCloseButton]="true" [showConfirmButton]="false"
+  [allowOutsideClick]="true" [animation]="false" [customClass]="{
+  popup: 'animated fadeIn'
+}">
+
+  <ng-container *swalPartial="swalTargets.content">
+
+
+    <div class="text-center text-2xl sm:text-3xl">
+      <p>ข้อมูลรวม</p>
+    </div>
+
+    <div class="block justify-center mt-3">
+      <div class="w-full sm:w-8/12 py-1 m-auto flex justify-between text-sm sm:text-lg">
+        <span class="px-3 py-2 rounded-lg text-white bg-teal-500">พื้นที่ทั้งหมด</span>
+        <span class="px-3 py-2 rounded-lg text-black bg-yellow-500">{{area.listAreaUser.length}} แปลง
+          <span>&#8776;</span> {{InfomationArea.AreaAllDistance | number: '1.1-2'}} ไร่</span>
+      </div>
+      <div class="w-full sm:w-8/12 py-1 m-auto flex justify-between text-sm sm:text-lg">
+        <span class="px-3 py-1 rounded-lg text-white bg-green-500">อ้อยตอ 1</span>
+        <span class="px-3 py-1 border-2 rounded-lg text-black"> {{ InfomationArea.T1AllCount}} แปลง <span>&#8776;</span>
+          {{InfomationArea.T1AllDistance | number: '1.1-2'}} ไร่</span>
+      </div>
+      <div class="w-full sm:w-8/12 py-1 m-auto flex justify-between text-sm sm:text-lg">
+        <span class="px-3 py-1 rounded-lg text-white bg-yellow-500">อ้อยตอ 2</span>
+        <span class="px-3 py-1 border-2 rounded-lg text-black">{{ InfomationArea.T2AllCount}} แปลง <span>&#8776;</span>
+          {{InfomationArea.T2AllDistance | number: '1.1-2'}} ไร่</span>
+      </div>
+      <div class="w-full sm:w-8/12 py-1 m-auto flex justify-between text-sm sm:text-lg">
+        <span class="px-3 py-1 rounded-lg text-white bg-red-500">อ้อยตอ 3</span>
+        <span class="px-3 py-1 border-2  rounded-lg text-black">{{ InfomationArea.T3AllCount}} แปลง <span>&#8776;</span>
+          {{InfomationArea.T3AllDistance | number: '1.1-2'}} ไร่</span>
+      </div>
+      <div class="w-full sm:w-8/12 py-1 m-auto flex justify-between text-sm sm:text-lg">
+        <span class="px-3 py-1 border-2 border-green-500 rounded-lg  text-green-500">ตัดแล้ว</span>
+        <span class="px-3 py-1 rounded-lg text-white bg-green-500">{{ InfomationArea.CutAllCount}} แปลง
+          <span>&#8776;</span> {{InfomationArea.CutAllDistance | number: '1.1-2'}} ไร่</span>
+      </div>
+      <div class="w-full sm:w-8/12 py-1 m-auto flex justify-between text-sm sm:text-lg">
+        <span class="px-3 py-1 border-2 border-red-500  rounded-lg text-red-500 bg-white">ยังไม่ตัด</span>
+        <span class="px-3 py-1 rounded-lg text-white bg-red-500">{{ InfomationArea.notCutAllCount}} แปลง
+          <span>&#8776;</span> {{InfomationArea.notCutAllDistance | number: '1.1-2'}} ไร่</span>
+      </div>
+    </div>
+
+
+  </ng-container>
+</swal>
+
+<swal #SwalShowImageFull [width]=700 [showCancelButton]="false" [showCloseButton]="true" [showConfirmButton]="false"
+  [allowOutsideClick]="true" [animation]="false" [customClass]="{
+  popup: 'animated fadeIn'
+}">
+
+  <ng-container *swalPartial="swalTargets.content">
+    <div class="w-full">
+      <img class="m-auto w-full" [src]="userImage" (click)="SwalShowImageFull.nativeSwal.close()"
+        style="cursor: zoom-out;" alt="">
+    </div>
+
+  </ng-container>
+</swal>
+
+
+<swal #SwalListArea [width]="900" [showCancelButton]="false" [showCloseButton]="true" (close)="closeListArea()"
+  [showConfirmButton]="false" [allowOutsideClick]="false" [animation]="false" [customClass]="{
+    popup: 'animated fadeIn'
+  }">
+
+  <ng-container *swalPartial="swalTargets.content">
+    <div class="text-center block justify-center text-2xl sm:text-3xl">
+      <div class="m-0 w-full">
+        <p class="m-auto" *ngIf="area.listAreaUser.length != 0">รายการพื้นที่</p>
+        <p class="m-auto" *ngIf="area.listAreaUser.length === 0">คุณยังไม่มีแปลงพื้นที่</p>
+
+      </div>
+
+      <form class="w-full" [formGroup]="formSearchListArea">
+        <div class="flex m-0 w-full sm:w-8/12  p-2 m-auto">
+
+          <div style="width: 150px;">
+
+            <div class="relative text-sm sm:text-base">
+              <select formControlName="type" (change)="inputSearch(formSearchListArea.value.type)"
+                class="block appearance-none w-full bg-gray-200 py-2 px-2 border border-gray-200 text-gray-700 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                id="grid-state">
+                <option value="id">เลขแปลง</option>
+                <option value="name">ชื่อแปลง</option>
+                <option value="cut">ตัดเเล้ว</option>
+                <option value="notcut">ยังไม่ตัด</option>
+                <option value="t1">อ้อยต่อ 1</option>
+                <option value="t2">อ้อยต่อ 2</option>
+                <option value="t3">อ้อยต่อ 3</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+              </div>
+            </div>
+
+          </div>
+          <div class="w-full px-2">
+            <div class="flex items-center border-b border-b-2 border-gray-700 py-1">
+
+              <input *ngIf="formSearchListArea.value.type === 'id' || formSearchListArea.value.type === 'name'"
+                formControlName="text" (keyup)="inputSearch(formSearchListArea.value.text)"
+                class="appearance-none bg-transparent border-none w-full  text-center text-gray-700 py-1 px-2 leading-tight focus:outline-none text-xs sm:text-base"
+                type="text" placeholder="ใส่หมายเลขหรือชื่อแปลง" aria-label="Full name">
+
+              <input
+                *ngIf="formSearchListArea.value.type === 'cut' || formSearchListArea.value.type === 'notcut' || formSearchListArea.value.type === 't1' || formSearchListArea.value.type === 't2' || formSearchListArea.value.type === 't3'"
+                class="appearance-none border-none w-full bg-gray-200 text-center text-gray-700 py-1 px-2 leading-tight focus:outline-none text-xs sm:text-base"
+                type="text" disabled placeholder="ไม่ต้องใส่ข้อมูล" aria-label="Full name">
+              <button class="flex-shrink-0 text-white rounded text-xs sm:text-base" type="button">
+                <img class="w-4 sm:w-8" src="../../../assets/icon/musica-searcher.png" alt="">
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+    </div>
+
+    <div *ngIf="(dataSearchArea | filterBy: AreaFilter).length != 0"
+      class="w-full flex justify-center text-center text-2xl sm:text-3xl my-2 sm:my-4">
+      <div class="w-8 sm:w-10 mr-2 opacity-75 cursor-pointer">
+        <img *ngIf="selectTypeListArea != 'list'" (click)="selectTypeListArea = 'list'" class="w-full"
+          src="../../../assets/icon/listLayoutD.png" alt="">
+        <img *ngIf="selectTypeListArea === 'list'" class="w-full" src="../../../assets/icon/listLayout.png" alt="">
+      </div>
+      <div class="w-8 sm:w-10 ml-2 opacity-75 cursor-pointer">
+        <img *ngIf="selectTypeListArea != 'grid'" (click)="selectTypeListArea = 'grid'" class="w-full"
+          src="../../../assets/icon/gridLayoutD.png" alt="">
+        <img *ngIf="selectTypeListArea === 'grid'" class="w-full" src="../../../assets/icon/gridLayout.png" alt="">
+      </div>
+    </div>
+
+    <div *ngIf="selectTypeListArea === 'grid'" class="animated fadeIn">
+
+      <div *ngFor="let items of this.area.listAreaUser | filterBy: AreaFilter; let i=index;"
+        (click)="showPolyArea(items);typeSelectAreaPoly = 1" class="relative inline-block m-0 w-1/2 sm:w-1/4 p-2 my-2">
+
+        <div class="my-2">
+          <!-- <img class="rounded-lg w-48" src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2550&q=80" alt="Woman paying for a purchase"> -->
+
+          <div class="relative rounded-lg col-12 p-0 MapViewSub">
+            <agm-map [mapDraggable]="false" class="h-32 sm:h-48 rounded-lg" [fullscreenControl]="false"
+              [zoomControl]="false" [disableDoubleClickZoom]="true" [streetViewControl]="false"
+              [mapTypeId]="MapTypeCurrent" [minZoom]=1 [zoom]="16" [latitude]="items.centerMarker[0].lat"
+              [longitude]="items.centerMarker[0].lng">
+
+              <agm-polygon class="animated fadeInDown" [fillColor]="colorKey[items.typeArea]" [strokeWeight]="1"
+                [fillOpacity]='.5' strokeColor="#fff" [paths]="items.mapArray">
+
+              </agm-polygon>
+
+            </agm-map>
+
+            <!-- <div class="absolute rounded-lg bottom-0 right-0 text-xs sm:text-sm px-2 text-white" [ngClass]="{'bg-orange-600': items.statusCut === 'ยังไม่ตัด','bg-green-600': items.statusCut === 'ตัดแล้ว'}">
+                {{items.statusCut}}
+              </div> -->
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <span class="text-xs sm:text-base text-gray-800">ชื่อแปลง</span>
+          <span class="text-xs sm:text-base text-gray-800 font-semibold">{{items.nameArea}}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-xs sm:text-base text-gray-800">ประเภท</span>
+          <span *ngIf="items.typeArea === 0" class="text-xs sm:text-base text-gray-800 font-semibold">ตอ 1</span>
+          <span *ngIf="items.typeArea === 1" class="text-xs sm:text-base text-gray-800 font-semibold">ตอ 2</span>
+          <span *ngIf="items.typeArea === 2" class="text-xs sm:text-base text-gray-800 font-semibold">ตอ 3</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-xs sm:text-base text-gray-800">สถานะ</span>
+          <span class="rounded-lg bottom-0 right-0 text-xs sm:text-sm px-2 text-white"
+            [ngClass]="{'bg-red-600': items.statusCut === 'ยังไม่ตัด','bg-green-600': items.statusCut === 'ตัดแล้ว'}">
+            {{items.statusCut}}
+          </span>
+        </div>
+
+        <div class="absolute rounded-lg top-0 left-0 right-0 HeadArea text-xs sm:text-base bg-red-600">
+          # {{items.idArea}}
+        </div>
+      </div>
+
+    </div>
+
+
+    <div *ngIf="selectTypeListArea === 'list'" class="w-full animated fadeIn">
+      <table *ngIf="(area.listAreaUser | filterBy: AreaFilter).length != 0"
+        class="table table-responsive text-xs sm:text-base text-center">
+        <thead class="text-center">
+          <tr>
+            <th>เลขแปลง</th>
+            <!-- <th>ชื่อ</th> -->
+            <th>ชื่อแปลง</th>
+            <th>สถานะ</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody class="text-center">
+          <tr *ngFor="let items of area.listAreaUser | filterBy: AreaFilter; let i=index;">
+            <td>{{items.idArea}}</td>
+            <!-- <td>{{items.nameArea}}</td> -->
+            <td>
+              {{items.nameArea}}
+            </td>
+            <td>
+              <span class="rounded-lg bottom-0 right-0 text-xs sm:text-sm px-2 text-white"
+                [ngClass]="{'bg-red-600': items.statusCut === 'ยังไม่ตัด','bg-green-600': items.statusCut === 'ตัดแล้ว'}">
+                {{items.statusCut}}
+              </span>
+            </td>
+            <td>
+              <div (click)="showPolyArea(items); typeSelectAreaPoly = 1" class="hover:opacity-25 cursor-pointer">
+
+                <img class="w-4 sm:w-8" src="../../../assets/icon/seo.png" alt="">
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+
+    </div>
+
+    <div class="text-2xl sm:text-3xl mt-3" *ngIf="(dataSearchArea | filterBy: AreaFilter).length === 0">
+      <p>
+        ไม่มีข้อมูลที่ค้นหา
+      </p>
+    </div>
+
+
+  </ng-container>
+</swal>
